@@ -62,7 +62,7 @@ class Form(StatesGroup):
     course = State()
     goals = State()
     ad_text = State()
-    unfinished = State()
+    finished = State()
 
 
 answers_dict = {"gender": ['I am a Guy ‍👨‍💼', 'I am a Lady ‍👩‍💼'], "campus": ['Kantemirovskaya 🏭', 'Griboedova 🏨', 'Promyshlennaya 🏫', 'Sedova 🏠'],
@@ -139,6 +139,16 @@ course_keyboard = types.ReplyKeyboardMarkup(keyboard=course_kb,
                                             input_field_placeholder='Choose your course'
                                             )
 
+last_kb = [
+        [types.KeyboardButton(text='Publish 🏹!')],
+        [types.KeyboardButton(text='Start over 🔄')],
+    ]
+
+last_keyboard = types.ReplyKeyboardMarkup(keyboard=last_kb,
+                                          resize_keyboard=True,
+                                          input_field_placeholder='Finally, your decision...'
+                                          )
+
 # COMMANDS
 
 
@@ -170,9 +180,22 @@ async def not_finished(message: types.Message, state: FSMContext):
 
 
 # start the bot and registration
-@router.message(StateFilter(None), Command('start'))
+@router.message((F.text == '/start') | (F.text == 'Start over 🔄'))
 async def gender_choice(message: types.Message, state: FSMContext) -> None:
     # setting first property - ID
+    await state.clear()
+    # if the user cleared history and tried to launch the /start again:
+    id_to_check = message.from_user.id
+    # Check if the ID exists in the table
+    c.execute('''SELECT * FROM users WHERE id = ?''', (id_to_check,))
+    # Fetch the result
+    result = c.fetchone()
+    # Check if the ID exists
+    if result is not None:
+        await message.answer("🧞Our digital minds say that you have been in Moura recently.\nWe delete your data from us and you shall start over!🔮")
+        c.execute('''DELETE FROM users WHERE id = ?''', (id_to_check,))
+        conn.commit()
+
     await state.set_state(Form.id)
     await state.update_data(id=message.from_user.id)
     await message.answer_photo('https://cutt.ly/cwTbybUB', 'Welcome to the world of Moura!🫰\n\n<b>STEP 1/6📝</b>\nTell us about yourself:',
@@ -246,8 +269,11 @@ async def campus_chosen(message: types.Message, state: FSMContext):
 )
 async def program_chosen(message: types.Message, state: FSMContext) -> None:
     # setting program
-    await state.update_data(program=message.text)
-
+    data = await state.get_data()
+    try:
+        prog = data["program"]
+    except KeyError:
+        await state.update_data(program=message.text)
     # Log updated data
     data = await state.get_data()
     sdata = ", ".join([f"{key} - {value}" for key, value in data.items()])
@@ -255,7 +281,7 @@ async def program_chosen(message: types.Message, state: FSMContext) -> None:
 
     await state.update_data(program=message.text)
     await message.reply(
-        f'So, you study {message.text if message.text != "Sedova 🏠" else "Sociology 👥, so skipping the 3rd step"}!\n\n<b>STEP 4/6📝</b>\nWhat is your course?',
+        f'So, you study <b>{message.text if message.text != "Sedova 🏠" else "Sociology 👥, so skipping the 3rd step"}!</b>\n\n<b>STEP 4/6📝</b>\nWhat is your course?',
         reply_markup=course_keyboard, parse_mode=ParseMode.HTML)
     await state.set_state(Form.course)
 
@@ -285,7 +311,8 @@ async def course_chosen(message: types.Message, state: FSMContext) -> None:
     sdata = ", ".join([f"{key} - {value}" for key, value in data.items()])
     logging.info("User data for id " + str(message.from_user.id) + " is set to " + sdata)
 
-    await message.answer("We saved your basic information! No worries about it",  reply_markup=ReplyKeyboardRemove())
+    await message.answer("Sooo, we are done with your basic information!\n<b>Let's go for a next step!😎</b>",
+                         reply_markup=ReplyKeyboardRemove())
 
     await message.answer("<b>STEP 5/6📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking "
                          "(co-projects) or just friendship.\nBe open and honest.",
@@ -300,7 +327,7 @@ async def callbacks(call: types.CallbackQuery, state: FSMContext):
         else:
             chosen_goals.append(call.data)
         if chosen_goals:
-            await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="<b>STEP 5/6📝</b>\nYour chosen goals: <b>" + ', '.join(chosen_goals) + "</b>\n They will affect which people you will see", reply_markup=goals_builder.as_markup())
+            await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="<b>STEP 5/6📝</b>\nYour chosen goals: <b>" + ', '.join(chosen_goals) + "</b>\nThey will affect which people you will see", reply_markup=goals_builder.as_markup())
         else:
             await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                           text="<b>STEP 5/6📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking (co-projects) or just friendship.\nBe open and honest.",
@@ -320,38 +347,91 @@ async def callbacks(call: types.CallbackQuery, state: FSMContext):
                                           reply_markup=goals_builder.as_markup())
 
 
-# Finished
+def parse_ad(data):
+    sdata = ""
+    for key, value in data.items():
+        if key not in ["id", "ad_text", "goals"]:
+            sdata += "<b>"+key[0].upper()+key[1:]+":</b> "+(value if key != "gender" else "male" if value == 1 else "female")+"\n\n"
+        else:
+            if key == "ad_text":
+                sdata += "<b>Ad text:</b> "+value+"\n\n"
+            if key == "goals":
+                sdata += "<b>"+key[0].upper()+key[1:]+":</b> "+', '.join(value)+"\n\n"
+    return sdata
+
+
+# 111 - Dates, Networking, Friendship
+def goals_encoder(goals_data, decode=False):
+    if decode:
+        output = ""
+        if goals_data // 100 != 0:
+            output += 'Dates 👫, '
+        if goals_data % 100 // 10 != 0:
+            output += 'Networking 🤝, '
+        if goals_data % 10 != 0:
+            output += 'Friendship 🤙'
+        return output
+    else:
+        code = 0
+        for g in goals_data:
+            if g == 'Dates 👫':
+                code += 100
+            if g == 'Networking 🤝':
+                code += 10
+            if g == 'Friendship 🤙':
+                code += 1
+        return code
+
+
+# Finishing
 @router.message(
     Form.ad_text,
     F.text.len() > 10
 )
-async def finish(message: types.Message, state: FSMContext):
+async def register_finishing(message: types.Message, state: FSMContext):
     await state.update_data(ad_text=message.text)
     data = await state.get_data()
     await message.answer(
-        text=f"Your ad:\n{data}",
-        reply_markup=ReplyKeyboardRemove()
+        text=f"<b>WE ARE ALL DONE!✅\nLook at your ad:</b>\n\n{parse_ad(data)}\n\nIs everything correct? <b>If yes, click Publish!</b>",
+        reply_markup=last_keyboard
     )
-    # save it to database
-    await state.clear()
+    await state.set_state(Form.finished)
 
 
-# Not Finished
+# Not Finishing
 @router.message(
     Form.ad_text,
     F.text.len() <= 10
 )
 async def not_finished(message: types.Message, state: FSMContext):
-    await message.reply('Your ad is too short. Try something again!')
+    await message.reply('Your ad is too short. Try something again!👇')
 
 
-async def show_summary(message: Message, data: Dict[str, Any], positive: bool = True):
-    text = 'You are ' + data.get('gender') + 'studying at ' + data.get('campus') + ' on ' + data.get(
-        'program') + ' at ' + data.get('course') + ' course.\nYour ad:\n' + data.get('ad_text')
-    await message.reply(text=text, reply_markup=ReplyKeyboardRemove())
+# Finished
+@router.message(
+    Form.finished,
+    F.text == 'Publish 🏹!'
+)
+async def register_finishing(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    sdata = list(data.values())
+    sdata[5] = goals_encoder(sdata[5])
+    await message.answer(
+        text=f"<b>Your ad is published!🤩</b>\nWait for the first ad to come!",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    # Insert the user data into the table
+    c.execute('''INSERT INTO users (id, gender, campus, program, course, goals, ad_text) VALUES (?, ?, ?, ?, ?, ?, ?)''', sdata)
+
+    # Commit the transaction
+    conn.commit()
+    # save it to database
+    await state.clear()
 
 
-# f'{message.html_text}'
+class Matches(StatesGroup):
+    id = State()
+    matches = State()
 
 
 async def main():
@@ -373,6 +453,7 @@ if __name__ == '__main__':
 
 
 '''
+ADD THEM IN THE FUTURE
              'interests': {
                  'Business💸': False,
                  'Finances📈': False,
