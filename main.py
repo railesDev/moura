@@ -42,7 +42,7 @@ c = conn.cursor()
 
 # Create the users table if it doesn't exist
 c.execute('''CREATE TABLE IF NOT EXISTS users
-             (id INTEGER PRIMARY KEY AUTOINCREMENT, gender integer, campus text, program text, course integer, goals text, ad_text text)''')
+             (id INTEGER PRIMARY KEY AUTOINCREMENT, gender integer, campus text, program text, course integer, goals text, photo_id integer, ad_text text)''')
 
 
 # Configure bot
@@ -61,6 +61,7 @@ class Form(StatesGroup):
     program = State()
     course = State()
     goals = State()
+    photo_id = State()
     ad_text = State()
     finished = State()
 
@@ -220,7 +221,7 @@ async def gender_chosen(message: types.Message, state: FSMContext) -> None:
     logging.info("User data for id "+str(message.from_user.id)+" is set to "+sdata)
 
     gendr = 'bro' if message.text == 'I am a Guy ‍👨‍💼' else 'lady'
-    await message.answer_photo('https://cutt.ly/xwTbFx6J',
+    await message.answer_photo('https://cutt.ly/hwTVzUO7',
                                f'Okay, {gendr}!\n\n<b>STEP 2/6📝</b>\nThen we determine your HSE campus. Choose one of yours below:👇',
                                reply_markup=keyboard_campus)
     await state.set_state(Form.campus)
@@ -238,6 +239,12 @@ async def campus_chosen(message: types.Message, state: FSMContext):
     data = await state.get_data()
     sdata = ", ".join([f"{key} - {value}" for key, value in data.items()])
     logging.info("User data for id " + str(message.from_user.id) + " is set to " + sdata)
+
+    await moura.send_animation(message.from_user.id, ('https://cutt.ly/TwTVUdvU' if message.text == 'Kantemirovskaya 🏭'
+                                                      else ('https://cutt.ly/4wTVUUdQ' if message.text == 'Griboedova 🏨'
+                                                            else ('https://cutt.ly/OwTVHoIR' if message.text == 'Promyshlennaya 🏫'
+                                                                  else ('https://cutt.ly/swTVIkDr' if message.text == 'Sedova 🏠' else None)))),
+                               caption='Each building of HSE is unique.🫶\nWe in Moura like all the campuses no matter their location!')
 
     # process individual case with Sedova
     if message.text == 'Sedova 🏠':
@@ -257,7 +264,8 @@ async def campus_chosen(message: types.Message, state: FSMContext):
                                                   )
     await state.update_data(campus=message.text)
     # conditional sending photos of campuses
-    await message.answer('Each building of HSE is unique.🫶\nWe in Moura like all the campuses no matter their location!\n\n<b>STEP 3/6📝</b>\nWhich program do you study at?👀', reply_markup=keyboard_programs)
+
+    await message.answer('<b>STEP 3/6📝</b>\nWhich program do you study at?👀', reply_markup=keyboard_programs)
     await state.set_state(Form.program)
 
 
