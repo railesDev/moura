@@ -13,6 +13,7 @@ from os import getenv
 from typing import Any, Dict
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.enums import content_type
 # ADD CHECKS THAT ALL PREVIOUS ARE FILLED
 import asyncio
 import logging
@@ -42,7 +43,7 @@ c = conn.cursor()
 
 # Create the users table if it doesn't exist
 c.execute('''CREATE TABLE IF NOT EXISTS users
-             (id INTEGER PRIMARY KEY AUTOINCREMENT, gender integer, campus text, program text, course integer, goals text, photo_id integer, ad_text text)''')
+             (id INTEGER PRIMARY KEY AUTOINCREMENT, gender integer, campus text, program text, course integer, goals integer, gender_goals integer, photo_id integer, ad_text text)''')
 
 
 # Configure bot
@@ -61,6 +62,7 @@ class Form(StatesGroup):
     program = State()
     course = State()
     goals = State()
+    gender_goals = State()
     photo_id = State()
     ad_text = State()
     finished = State()
@@ -140,6 +142,27 @@ course_keyboard = types.ReplyKeyboardMarkup(keyboard=course_kb,
                                             input_field_placeholder='Choose your course'
                                             )
 
+gendergoals_kb = [
+        [types.KeyboardButton(text='Guys 👨‍💼')],
+        [types.KeyboardButton(text='Ladies ‍👩‍💼')],
+        [types.KeyboardButton(text='Both 🤷')],
+        [types.KeyboardButton(text='Cancel ❌')]
+    ]
+
+gendergoals_keyboard = types.ReplyKeyboardMarkup(keyboard=gendergoals_kb,
+                                                 resize_keyboard=True,
+                                                 input_field_placeholder='Choose your preferences'
+                                                 )
+
+photo_kb = [
+        [types.KeyboardButton(text='No photo ❌')]
+    ]
+
+photo_keyboard = types.ReplyKeyboardMarkup(keyboard=photo_kb,
+                                           resize_keyboard=True,
+                                           input_field_placeholder='Upload photo or refuse'
+                                           )
+
 last_kb = [
         [types.KeyboardButton(text='Publish 🏹!')],
         [types.KeyboardButton(text='Start over 🔄')],
@@ -199,7 +222,7 @@ async def gender_choice(message: types.Message, state: FSMContext) -> None:
 
     await state.set_state(Form.id)
     await state.update_data(id=message.from_user.id)
-    await message.answer_photo('https://cutt.ly/cwTbybUB', 'Welcome to the world of Moura!🫰\n\n<b>STEP 1/6📝</b>\nTell us about yourself:',
+    await message.answer_photo('https://cutt.ly/cwTbybUB', 'Welcome to the world of Moura!🫰\n\n<b>STEP 1/8📝</b>\nTell us about yourself:',
                                reply_markup=keyboard_gender)
     await state.set_state(Form.gender)  # setting state that we chose gender
 
@@ -222,7 +245,7 @@ async def gender_chosen(message: types.Message, state: FSMContext) -> None:
 
     gendr = 'bro' if message.text == 'I am a Guy ‍👨‍💼' else 'lady'
     await message.answer_photo('https://cutt.ly/hwTVzUO7',
-                               f'Okay, {gendr}!\n\n<b>STEP 2/6📝</b>\nThen we determine your HSE campus. Choose one of yours below:👇',
+                               f'Okay, {gendr}!\n\n<b>STEP 2/8📝</b>\nThen we determine your HSE campus. Choose one of yours below:👇',
                                reply_markup=keyboard_campus)
     await state.set_state(Form.campus)
 
@@ -265,7 +288,7 @@ async def campus_chosen(message: types.Message, state: FSMContext):
     await state.update_data(campus=message.text)
     # conditional sending photos of campuses
 
-    await message.answer('<b>STEP 3/6📝</b>\nWhich program do you study at?👀', reply_markup=keyboard_programs)
+    await message.answer('<b>STEP 3/8📝</b>\nWhich program do you study at?👀', reply_markup=keyboard_programs)
     await state.set_state(Form.program)
 
 
@@ -289,7 +312,7 @@ async def program_chosen(message: types.Message, state: FSMContext) -> None:
 
     await state.update_data(program=message.text)
     await message.reply(
-        f'So, you study <b>{message.text if message.text != "Sedova 🏠" else "Sociology 👥, so skipping the 3rd step"}!</b>\n\n<b>STEP 4/6📝</b>\nWhat is your course?',
+        f'So, you study <b>{message.text if message.text != "Sedova 🏠" else "Sociology 👥, so skipping the 3rd step"}!</b>\n\n<b>STEP 4/8📝</b>\nWhat is your course?',
         reply_markup=course_keyboard, parse_mode=ParseMode.HTML)
     await state.set_state(Form.course)
 
@@ -322,7 +345,7 @@ async def course_chosen(message: types.Message, state: FSMContext) -> None:
     await message.answer("Sooo, we are done with your basic information!\n<b>Let's go for a next step!😎</b>",
                          reply_markup=ReplyKeyboardRemove())
 
-    await message.answer("<b>STEP 5/6📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking "
+    await message.answer("<b>STEP 5/8📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking "
                          "(co-projects) or just friendship.\nBe open and honest.",
                          reply_markup=goals_builder.as_markup())
 
@@ -335,10 +358,10 @@ async def callbacks(call: types.CallbackQuery, state: FSMContext):
         else:
             chosen_goals.append(call.data)
         if chosen_goals:
-            await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="<b>STEP 5/6📝</b>\nYour chosen goals: <b>" + ', '.join(chosen_goals) + "</b>\nThey will affect which people you will see", reply_markup=goals_builder.as_markup())
+            await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="<b>STEP 5/8📝</b>\nYour chosen goals: <b>" + ', '.join(chosen_goals) + "</b>\nThey will affect which people you will see", reply_markup=goals_builder.as_markup())
         else:
             await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                          text="<b>STEP 5/6📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking (co-projects) or just friendship.\nBe open and honest.",
+                                          text="<b>STEP 5/8📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking (co-projects) or just friendship.\nBe open and honest.",
                                           reply_markup=goals_builder.as_markup())
     elif call.data == 'save':
         # Save chosen_goals to database or do whatever you need with them
@@ -346,26 +369,73 @@ async def callbacks(call: types.CallbackQuery, state: FSMContext):
             await state.set_state(Form.goals)
             await state.update_data(goals=chosen_goals)
             await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Your goals have been saved!\n\n<b>" + ', '.join(chosen_goals) + "</b>\n\nThis will help Moura to find more suitable people for you!")
-            await moura.send_message(chat_id=call.message.chat.id, text='<b>STEP 6/6📝</b>\nFinally, create an ad!\n\nDescribe what you want or offer something...',
-                                     reply_markup=types.ForceReply(input_field_placeholder='Describe what you want or offer something...'))
-            await state.set_state(Form.ad_text)
+            await state.set_state(Form.gender_goals)
+            await moura.send_message(chat_id=call.message.chat.id,
+                                     text="<b>STEP 6/8📝</b>\nWhat about your gender preferences? Who should Moura show you?",
+                                     reply_markup=gendergoals_keyboard)
         else:
             await moura.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                          text="<b>Choose any goal first!</b>\n\n<b>STEP 5/6📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking (co-projects) or just friendship.\nBe open and honest.",
+                                          text="<b>Choose any goal first!</b>\n\n<b>STEP 5/8📝</b>\nWhat are your boundaries and goals?\nThey can be romantic, networking (co-projects) or just friendship.\nBe open and honest.",
                                           reply_markup=goals_builder.as_markup())
+
+
+# 2 - both, 1 - i want girls, 0 - i want boys
+# dating = full correlation
+# others - any
+'''
+Protection from homophobia
+IF GENDER = MALE, GENDER PREFERENCE = 2 AND NOT ONLY DATING, BUT DATING IS SET, INCOMING_AD.PREFERENCE==1 AND GENDER == 1 - miss
+'''
+
+
+@router.message(
+   Form.gender_goals
+)
+async def gendergoals_set(message: types.Message, state: FSMContext) -> None:
+    await state.update_data(gender_goals=(2 if message.text == "Both 🤷" else (1 if message.text == 'Ladies ‍👩‍💼' else (0 if message.text == 'Guys‍👨‍💼' else None))))
+    await state.set_state(Form.photo_id)
+    await message.answer("<b>STEP 7/8📝</b>\nNow, if you wish, you can attach a photo to your ad! It will increase your chance to match!",
+                         reply_markup=photo_keyboard)
+
+
+@router.message(
+   Form.photo_id
+)
+async def photo_sent(message: types.Message, state: FSMContext) -> None:
+    await state.set_state(Form.ad_text)
+    try:
+        if message.text == 'No photo ❌':
+            await state.update_data(photo_id=config.default_photo_id.get_secret_value())
+    except Exception:
+        pass
+    try:
+        await state.update_data(photo_id=message.photo[-1].file_id)
+    except Exception:
+        pass
+    await state.set_state(Form.ad_text)
+    await message.answer('As we are done with photos,...\n\n<b>STEP 8/8📝</b>\nFinally, create an ad!\n\nDescribe what you want or offer something...',
+                         reply_markup=types.ForceReply(
+                             input_field_placeholder='Describe what you want or offer something...'))
 
 
 def parse_ad(data):
     sdata = ""
+    photoid = ""
     for key, value in data.items():
-        if key not in ["id", "ad_text", "goals"]:
+        if key not in ["id", "ad_text", "goals", "photo_id", "gender_goals"]:
             sdata += "<b>"+key[0].upper()+key[1:]+":</b> "+(value if key != "gender" else "male" if value == 1 else "female")+"\n\n"
         else:
             if key == "ad_text":
                 sdata += "<b>Ad text:</b> "+value+"\n\n"
             if key == "goals":
                 sdata += "<b>"+key[0].upper()+key[1:]+":</b> "+', '.join(value)+"\n\n"
-    return sdata
+            if key == "gender_goals":
+                sdata += "<b>Your preferences:</b> " + ("Ladies ‍👩‍💼" if value == 1
+                                                                        else ("Both 🤷" if value == 2
+                                                                              else "Guys 👨‍💼")) + "\n\n"
+            if key == "photo_id":
+                photoid = value
+    return sdata, photoid
 
 
 # 111 - Dates, Networking, Friendship
@@ -399,10 +469,11 @@ def goals_encoder(goals_data, decode=False):
 async def register_finishing(message: types.Message, state: FSMContext):
     await state.update_data(ad_text=message.text)
     data = await state.get_data()
-    await message.answer(
-        text=f"<b>WE ARE ALL DONE!✅\nLook at your ad:</b>\n\n{parse_ad(data)}\n\nIs everything correct? <b>If yes, click Publish!</b>",
-        reply_markup=last_keyboard
-    )
+    sdata = parse_ad(data)
+    await message.answer_photo(sdata[1],
+                               caption=f"<b>WE ARE ALL DONE!✅\nLook at your ad:</b>\n\n{sdata[0]}\n\nIs everything correct? <b>If yes, click Publish!</b>",
+                               reply_markup=last_keyboard
+                               )
     await state.set_state(Form.finished)
 
 
@@ -429,7 +500,7 @@ async def register_finishing(message: types.Message, state: FSMContext):
         reply_markup=ReplyKeyboardRemove()
     )
     # Insert the user data into the table
-    c.execute('''INSERT INTO users (id, gender, campus, program, course, goals, ad_text) VALUES (?, ?, ?, ?, ?, ?, ?)''', sdata)
+    c.execute('''INSERT INTO users (id, gender, campus, program, course, goals, gender_goals, photo_id, ad_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', sdata)
 
     # Commit the transaction
     conn.commit()
