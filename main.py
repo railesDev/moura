@@ -479,6 +479,7 @@ async def deactivate(message: types.Message, state: FSMContext):
     await message.answer("Sorry to seeing you go😞\nYour ad and data have been deleted from us!\n"
                          "But you can always get back by typing /start or clicking on a button👇!",
                          reply_markup=keyboards.return_keyboard)
+    await state.clear()
 
 
 @router.message(
