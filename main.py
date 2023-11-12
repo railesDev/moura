@@ -6,7 +6,6 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram import Router, F
-from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
@@ -20,7 +19,6 @@ logging.basicConfig(level=logging.INFO)
 
 female_anon_photo_id = 'AgACAgIAAxkBAAIGJmVNcnV831dIx07HTQQayc5tk8bnAAI01DEb0oFxSvQ-2w8nblOoAQADAgADeQADMwQ'
 male_anon_photo_id = 'AgACAgIAAxkBAAIQxGVQA6sCMjjYnNgsUaCdusBZB4xyAAITzjEb7JSASjy2e7xU6PkMAQADAgADeQADMwQ'
-# veryyyy big difference
 
 # Connect to the SQLite database
 conn = sqlite3.connect('users.db')
@@ -73,7 +71,7 @@ answers_val = ['/start', 'I am a Guy ‍👨‍💼', 'I am a Lady 👩‍💼',
 # COMMANDS
 
 # start the bot and registration
-@router.message((F.text == '/start') | (F.text == 'Start over 🔄'))
+@router.message((F.text == '/start') | (F.text == 'Start over 🔄') | (F.text == '🔮Return to Moura!🔮'))
 async def gender_choice(message: types.Message, state: FSMContext) -> None:
     # setting first property - ID
     await state.clear()
@@ -85,12 +83,20 @@ async def gender_choice(message: types.Message, state: FSMContext) -> None:
     result = c.fetchone()
     # Check if the ID exists
     if result is not None or message.text == 'Start over 🔄':
-        await message.answer(("Okay, let's restart filling your profile!🔮" if message.text == 'Start over 🔄' else "🧞Our digital minds say that you have been in Moura recently.\nWe delete your data from us and you shall start over!🔮"))
+        await message.answer(("Okay, let's restart filling your profile!🔮" if message.text == 'Start over 🔄' else "🧞Our digital minds say that you have been in Moura recently.\nWe deleted your data from us and you shall start over!🔮"))
         c.execute('''DELETE FROM users WHERE id = ?''', (id_to_check,))
         c.execute('''DELETE FROM reactions WHERE id = ?''', (id_to_check,))
         c.execute('''DELETE FROM reactions WHERE match_id = ?''', (id_to_check,))
         conn.commit()
+        await gender_choice(message, state)
+    else:
+        await message.answer_photo('https://cutt.ly/LwYgpImT',
+                                   'Hey!👋\n\nBot is inactive until you enter the access code:\n<i>*hint: you can find it in the posters and ads</i>',
+                                   reply_markup=ReplyKeyboardRemove())
 
+
+@router.message((F.text == 'HSEMR'))
+async def gender_choice(message: types.Message, state: FSMContext) -> None:
     await state.set_state(Form.id)
     await state.update_data(id=message.from_user.id)
     await message.answer_photo('https://cutt.ly/cwTbybUB', 'Welcome to the world of Moura!🫰\n\n<b>STEP 1/8📝</b>\nTell us about yourself:',
@@ -317,11 +323,11 @@ def parse_ad(data):
             sdata += "<b>"+key[0].upper()+key[1:]+":</b> "+(value if key != "gender" else "male" if value == 1 else "female")+"\n"
         else:
             if key == "ad_text":
-                sdata = "<b>Ad text:</b>\n"+value+"\n\n\n" + sdata
+                sdata = "<b>Description:</b>\n"+value+"\n\n\n" + sdata
             if key == "goals":
                 sdata += "<b>"+key[0].upper()+key[1:]+":</b> "+', '.join(value)+"\n"
             if key == "gender_goals":
-                sdata += "<b>Your preferences:</b> " + ('Ladies ‍👩' if value == 0
+                sdata += "<b>Preferences:</b> " + ('Ladies ‍👩' if value == 0
                                                                     else ('Both 🤷' if value == 2
                                                                           else ('Guys 👨' if value == 1
                                                                                 else None))) + "\n"
@@ -412,7 +418,8 @@ async def register_finishing(message: types.Message, state: FSMContext):
 
 
 @router.message(
-    Matches.awaiting
+    Matches.awaiting,
+    F.text == '🔮Show me an ad!🔮'
 )
 async def get_new_ad(message: types.Message, state: FSMContext):
     logging.info("WARNING: WARNING: WARNING: Started searching for matches\n\n\n")
@@ -459,6 +466,22 @@ async def get_new_ad(message: types.Message, state: FSMContext):
 
 
 @router.message(
+    F.text == 'Deactivate my profile 😴'
+)
+async def deactivate(message: types.Message, state: FSMContext):
+    c.execute("""
+        UPDATE users
+        SET gender = ?, gender_goals = ?, ad_text = ?
+        WHERE id = ?
+    """, (2, 3, '-', message.from_user.id,))
+    c.execute('''DELETE FROM reactions WHERE id = ?''', (message.from_user.id,))
+    c.execute('''DELETE FROM reactions WHERE match_id = ?''', (message.from_user.id,))
+    await message.answer("Sorry to seeing you go😞\nYour ad and data have been deleted from us!\n"
+                         "But you can always get back by typing /start or clicking on a button👇!",
+                         reply_markup=keyboards.return_keyboard)
+
+
+@router.message(
     Matches.action
 )
 async def perform_action(message: types.Message, state: FSMContext):
@@ -472,7 +495,7 @@ async def perform_action(message: types.Message, state: FSMContext):
         conn.commit()
         await moura.send_message(chat_id=data["awaiting"], text="You have a new like!", reply_markup=keyboards.see_likes_keyboard)
         # TODO: ONLY LAST INCOMING LIKE WILL BE VISIBLE
-        await message.answer("Like was sent!") #reply_markup=awaiting_keyboard)
+        await message.answer("Like was sent!")  # reply_markup=awaiting_keyboard)
         await state.set_state(Matches.awaiting)
 
     elif message.text == 'Next ⏩️':
@@ -495,23 +518,28 @@ async def perform_action(message: types.Message, state: FSMContext):
 
 
 @dp.message(F.text == "Look at my likes!💟")
-async def look_at_new_like(message: types.Message, state: FSMContext):
+async def look_at_like(message: types.Message, state: FSMContext):
     c.execute('''
             SELECT id
             FROM reactions
             WHERE match_id = ? AND reaction = 1
             LIMIT 1
             ''', (message.from_user.id,))
-    match_id = c.fetchone()[0]
-    c.execute('''
+    res = c.fetchone()
+    if res is not None:  # we have likes left
+        match_id = res[0]
+        c.execute('''
             SELECT *
             FROM users
             WHERE id = ?
             LIMIT 1
         ''', (match_id,))
-    match_data = c.fetchone()
-    await state.update_data(awaiting=match_id)
-    await message.answer_photo(str(match_data[9]), unpack_ad(match_data), reply_markup=keyboards.likes_keyboard)
+        match_data = c.fetchone()
+        await state.update_data(awaiting=match_id)
+        await message.answer_photo(str(match_data[9]), unpack_ad(match_data), reply_markup=keyboards.likes_keyboard)
+    else:  # no likes left
+        await state.set_state(Matches.awaiting)
+        await message.answer("No more likes, wish to continue?", reply_markup=keyboards.awaiting_keyboard)
 
 
 @dp.message(F.text == "Match 💟")
@@ -530,8 +558,8 @@ async def match(message: types.Message, state: FSMContext):
     conn.commit()
     # later here will be some actions - choose context, choose place.
     logging.info("MATCHID: "+str(int(data['awaiting'])))
-    await message.answer(f"Write to [your new match\!](tg://user?id={int(data['awaiting'])})", parse_mode=ParseMode.MARKDOWN_V2, reply_markup=keyboards.awaiting_keyboard)
-    await state.set_state(Matches.awaiting)
+    await message.answer(f"Write to [your new match\!](tg://user?id={int(data['awaiting'])})", parse_mode=ParseMode.MARKDOWN_V2)
+    await look_at_like(message, state)  # view next like
     # to the one with whom we matched, will happen nothing. everything is on our initiative.
 
 
@@ -549,9 +577,8 @@ async def match(message: types.Message, state: FSMContext):
                     WHERE reaction != 2 AND match_id = ?
                 ''', (0, data["awaiting"]))
     conn.commit()
-    await message.answer("Okay, next one?",
-                         reply_markup=keyboards.awaiting_keyboard)
-    await state.set_state(Matches.awaiting)
+    await message.answer("Okay, next one!")
+    await look_at_like(message, state)  # view next like
 
 
 @dp.message(F.text == 'Complain ‼️')
@@ -568,8 +595,8 @@ async def complain(message: types.Message, state: FSMContext):
         WHERE reaction != 2 AND match_id = ?
         ''', (0, data["awaiting"]))
     conn.commit()
-    await message.answer("Please forward this ad to @heliumwer, he will deal with this person!", reply_markup=keyboards.awaiting_keyboard)
-    await state.set_state(Matches.awaiting)
+    await message.answer("Please forward this ad to @heliumwer, he will deal with this person!")
+    await look_at_like(message, state)  # view next like
 
 
 
