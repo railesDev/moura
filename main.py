@@ -95,7 +95,7 @@ async def gender_choice(message: types.Message, state: FSMContext) -> None:
                                    reply_markup=ReplyKeyboardRemove())
 
 
-@router.message((F.text == 'HSEMR'))
+@router.message((F.text.upper() == 'HSEMR'))
 async def gender_choice(message: types.Message, state: FSMContext) -> None:
     await state.set_state(Form.id)
     await state.update_data(id=message.from_user.id)
