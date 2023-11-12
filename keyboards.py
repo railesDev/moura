@@ -96,13 +96,24 @@ last_keyboard = types.ReplyKeyboardMarkup(keyboard=last_kb,
                                           )
 
 awaiting_kb = [
-        [types.KeyboardButton(text='🔮Show me people!🔮')],
+        [types.KeyboardButton(text='🔮Show me an ad!🔮')],
+        [types.KeyboardButton(text='Deactivate my profile 😴')],
     ]
 
 awaiting_keyboard = types.ReplyKeyboardMarkup(keyboard=awaiting_kb,
                                               resize_keyboard=True,
                                               input_field_placeholder="Let's go!!!"
                                               )
+
+return_kb = [
+        [types.KeyboardButton(text='🔮Return to Moura!🔮')],
+    ]
+
+return_keyboard = types.ReplyKeyboardMarkup(keyboard=return_kb,
+                                            resize_keyboard=True,
+                                            input_field_placeholder="Return?"
+                                            )
+
 
 tinder_kb = [
     [types.KeyboardButton(text='Like 💟'),
@@ -111,18 +122,18 @@ tinder_kb = [
     ]
 
 tinder_keyboard = types.ReplyKeyboardMarkup(keyboard=tinder_kb,
-                                           resize_keyboard=True,
-                                           input_field_placeholder='What do you think?'
-                                           )
+                                            resize_keyboard=True,
+                                            input_field_placeholder='What do you think?'
+                                            )
 
 see_likes_kb = [
     [types.KeyboardButton(text='Look at my likes!💟')]
     ]
 
 see_likes_keyboard = types.ReplyKeyboardMarkup(keyboard=see_likes_kb,
-                                           resize_keyboard=True,
-                                           input_field_placeholder='Wanna look?'
-                                           )
+                                               resize_keyboard=True,
+                                               input_field_placeholder='Wanna look?'
+                                               )
 
 
 likes_kb = [
