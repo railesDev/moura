@@ -91,7 +91,7 @@ async def gender_choice(message: types.Message, state: FSMContext) -> None:
         await gender_choice(message, state)
     else:
         await message.answer_photo('https://cutt.ly/LwYgpImT',
-                                   'Hey!👋\n\nBot is inactive until you enter the access code:\n<i>*hint: you can find it in the posters and ads</i>',
+                                   '<b>Hey!👋 Announcements channel: @mourahse</b>\n\nBot is inactive until you enter the access code:\n<i>*hint: you can find it in the posters and ads</i>',
                                    reply_markup=ReplyKeyboardRemove())
 
 
