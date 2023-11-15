@@ -287,7 +287,7 @@ async def gendergoals_set(message: types.Message, state: FSMContext) -> None:
     await state.set_state(Form.photo_id)
     # https://cutt.ly/mwYojXB7
     await message.answer_photo('https://cutt.ly/BwYocaLZ',
-                               "<b>STEP 7/8📝</b>\nNow, if you wish, you can attach a photo to your ad! It will increase your chance to match!",
+                               "<b>STEP 7/8📝</b>\nNow, if you wish, you can attach a photo to your ad! It will increase your chance to match!\nOr... refuse and stay anonymous🦹!",
                                reply_markup=keyboards.photo_keyboard)
 
 
@@ -600,20 +600,6 @@ async def complain(message: types.Message, state: FSMContext):
     await look_at_like(message, state)  # view next like
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 async def main():
     await dp.start_polling(moura)
 
@@ -629,32 +615,3 @@ if __name__ == '__main__':
 
 
 
-
-
-
-'''
-ADD THEM IN THE FUTURE
-             'interests': {
-                 'Business💸': False,
-                 'Finances📈': False,
-                 'Oratory🎙️': False,
-                 'Marketing📱': False,
-                 'UX/UI🤳': False,
-                 'Arts🎨': False,
-                 'Acting🎭': False,
-                 'Photography📸': False,
-                 'Cinema🎥': False,
-                 'Dancing💃': False,
-                 'Music🎧': False,
-                 'Sports & Health💪': False,
-                 'Travelling🏕️': False,
-                 'Fiction📚': False,
-                 'Series👓': False,
-                 'Programming👨‍💻': False,
-                 'Sciences🔬': False,
-                 'Stand-ups🎤': False,
-                 'Artsy lifestyle🖼️': False,
-                 'Parties🪩': False,
-                 'Board Games🎲': False,
-                 'Animals🐾': False,
-             },'''

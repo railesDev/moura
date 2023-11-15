@@ -42,3 +42,34 @@ ad_text text)''')
 # others - any
 # TODO: reactions: 0 dislike, 1 like, 2 match
 # TODO: YAML FILE WITH ALL NAMES
+
+
+
+
+
+'''
+ADD THEM IN THE FUTURE
+             'interests': {
+                 'Business💸': False,
+                 'Finances📈': False,
+                 'Oratory🎙️': False,
+                 'Marketing📱': False,
+                 'UX/UI🤳': False,
+                 'Arts🎨': False,
+                 'Acting🎭': False,
+                 'Photography📸': False,
+                 'Cinema🎥': False,
+                 'Dancing💃': False,
+                 'Music🎧': False,
+                 'Sports & Health💪': False,
+                 'Travelling🏕️': False,
+                 'Fiction📚': False,
+                 'Series👓': False,
+                 'Programming👨‍💻': False,
+                 'Sciences🔬': False,
+                 'Stand-ups🎤': False,
+                 'Artsy lifestyle🖼️': False,
+                 'Parties🪩': False,
+                 'Board Games🎲': False,
+                 'Animals🐾': False,
+             },'''
