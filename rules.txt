@@ -73,3 +73,15 @@ ADD THEM IN THE FUTURE
                  'Board Games🎲': False,
                  'Animals🐾': False,
              },'''
+
+
+answers_dict = {"gender": ['I am a Guy ‍👨‍💼', 'I am a Lady ‍👩‍💼'], "campus": ['Kantemirovskaya 🏭', 'Griboedova 🏨', 'Promyshlennaya 🏫', 'Sedova 🏠'],
+           "program": ['Logistics 🚚', 'InterBusiness 💼', 'Economics 📈', 'InterBac 🤹‍', 'PMI 💻', 'Data Analytics 📊', 'Physics 🌌', 'Law ⚖️',
+                       'History 📜', 'Mediacommunications 📱', 'Philology 📚', 'Politology 🏛️', 'Vostokovedenie ⛩️', 'Design 🎨', 'UAGS 🏢', 'Sociology 👥'],
+           "course": [1, 2, 3, 4],
+           "goals": ['Dates 👫', 'Networking 🤝', 'Friendship 🤙']}
+
+answers_val = ['/start', 'I am a Guy ‍👨‍💼', 'I am a Lady 👩‍💼', 'Kantemirovskaya 🏭', 'Griboedova 🏨', 'Promyshlennaya 🏫', 'Sedova 🏠', 'Logistics 🚚',
+               'InterBusiness 💼', 'Economics 📈', 'InterBac 🤹‍', 'PMI 💻', 'Data Analytics 📊', 'Physics 🌌', 'Law ⚖️',
+               'History 📜', 'Mediacommunications 📱', 'Philology 📚', 'Politology 🏛️', 'Vostokovedenie ⛩️', 'Design 🎨', 'UAGS 🏢', 'Sociology 👥',
+               '1', '2', '3', '4', 'Dates 👫', 'Networking 🤝', 'Friendship 🤙']
