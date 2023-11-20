@@ -17,13 +17,13 @@ async def perform_action(message: types.Message, state: FSMContext):
         await moura.send_message(chat_id=data["awaiting"],
                                  text=consts.got_like_caption,
                                  reply_markup=keyboards.see_likes_keyboard)
-        await message.answer("Like was sent!")  # reply_markup=awaiting_keyboard)
+        await message.answer(consts.like_caption)  # reply_markup=awaiting_keyboard)
         # TODO: WILL NEXT AD BE SENT?
         await state.set_state(User.awaiting)
 
     elif message.text == consts.actions[1]:
         dboper.react(conn, c, message.from_user.id, data["awaiting"], 0)
-        await message.answer("Okay, next one?",
+        await message.answer(consts.dislike_caption,
                              reply_markup=keyboards.awaiting_keyboard)
         # TODO: 100% NEXT AD WILL BE SENT
         await state.set_state(User.awaiting)
