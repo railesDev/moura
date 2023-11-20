@@ -132,5 +132,7 @@ actions_placeholder = 'What do you think?'
 
 like_actions = ['Match 💟', 'No 🚫', 'Complain ‼️']
 no_likes_caption = "No more likes, wish to continue?"
+like_caption = "Like was sent!"
+dislike_caption = "Okay, next one!"
 
 complain_caption = "Please forward this ad to @heliumwer, he will deal with this person!"
