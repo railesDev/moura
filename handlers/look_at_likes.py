@@ -41,7 +41,7 @@ async def match(message: types.Message, state: FSMContext):
 async def no_match(message: types.Message, state: FSMContext):
     data = await state.get_data()
     dboper.update_reaction(conn, c, data["awaiting"], 0)
-    await message.answer("Okay, next one!")
+    await message.answer(consts.dislike_caption)
     await look_at_like(message, state)  # view next like
 
 
