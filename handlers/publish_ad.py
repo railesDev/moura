@@ -5,6 +5,8 @@ from states import User
 from bot import c, conn
 import consts
 import dboper
+import asyncio
+import random
 
 
 def goals_encoder(goals_data, decode=False):
@@ -32,4 +34,13 @@ async def register_finishing(message: types.Message, state: FSMContext):
     # Insert the user data into the table
     dboper.save_user(conn, c, sdata)
     await state.set_state(User.awaiting)
-    # await state.update_data(awaiting=0)
+
+    # SPECIAL LINES TO CHECK INACTIVITY EACH 10 MINUTES
+    while True:
+        await asyncio.sleep(600)
+        try:
+            data = await state.get_data()
+            if data['awaiting']:
+                pass
+        except KeyError:
+            await message.answer(random.choice(consts.inactivity_caption))

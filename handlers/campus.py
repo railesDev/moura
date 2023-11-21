@@ -4,7 +4,7 @@ from states import User
 import consts
 import logging
 
-from handlers import course
+from handlers import program
 
 
 @router.message(
@@ -28,7 +28,7 @@ async def campus(message: types.Message, state: FSMContext):
         await state.set_state(User.program)
         await state.update_data(program='Sociology 👥')
         await state.set_state(User.course)
-        await course(message, state)
+        await program.program(message, state)
         return
 
     # ask for program

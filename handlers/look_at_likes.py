@@ -6,6 +6,8 @@ import consts
 import keyboards
 import logging
 from unpack_ad import unpack_ad
+import asyncio
+import random
 
 
 @dp.message(F.text == "Look at my likes!💟")
@@ -20,6 +22,17 @@ async def look_at_like(message: types.Message, state: FSMContext):
         await state.set_state(User.awaiting)
         await message.answer(consts.no_likes_caption,
                              reply_markup=keyboards.awaiting_keyboard)
+
+        # SPECIAL LINES TO CHECK INACTIVITY EACH 10 MINUTES
+        while True:
+            await asyncio.sleep(600)
+            try:
+                data = await state.get_data()
+                if data['awaiting']:
+                    pass
+            except KeyError:
+                await message.answer(random.choice(consts.inactivity_caption))
+
 
 
 @dp.message(F.text == "Match 💟")

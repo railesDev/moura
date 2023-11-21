@@ -6,8 +6,7 @@ import logging
 
 
 @router.message(
-    User.gender,
-    F.text.in_(consts.gender_options)
+    (F.text.in_(consts.gender_options))
 )
 async def gender(message: types.Message, state: FSMContext) -> None:
     await state.update_data(gender=1 if message.text == consts.gender_options[0] else 0)
