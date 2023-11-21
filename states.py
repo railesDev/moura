@@ -3,6 +3,7 @@ from bot import State, StatesGroup
 
 class User(StatesGroup):
     id = State()
+    # access = State()
     gender = State()
     campus = State()
     program = State()

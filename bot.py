@@ -11,6 +11,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from main import c, conn
 import asyncio
 from aiogram.enums import ParseMode
+import handlers
 
 storage = MemoryStorage()
 moura = Bot(token=config.bot_token.get_secret_value(), parse_mode='HTML')

@@ -1,6 +1,12 @@
 female_anon_photo_id = 'AgACAgIAAxkBAAIGJmVNcnV831dIx07HTQQayc5tk8bnAAI01DEb0oFxSvQ-2w8nblOoAQADAgADeQADMwQ'
 male_anon_photo_id = 'AgACAgIAAxkBAAIQxGVQA6sCMjjYnNgsUaCdusBZB4xyAAITzjEb7JSASjy2e7xU6PkMAQADAgADeQADMwQ'
 
+inactivity_caption = ["Are you there? Many people in Moura are awaiting for you!",
+                      "Let's get back to the world of Moura!",
+                      "Do you still want to match with someone?",
+                      "I am ready to show you many people from your university! "
+                      "If you don't want to respond, just deactivate the profile"]
+
 start_over = 'Start over 🔄'
 
 publish_ad = 'Publish 🏹!'
@@ -9,8 +15,12 @@ publish_placeholder = 'Ready to go?'
 no_photo = 'No photo ❌'
 show_ad = '🔮Show me an ad!🔮'
 save_goals = 'Save💾'
-deactivate_profile = 'Deactivate my profile 😴'
-deactivate_profile_caption = ("Sorry to seeing you go😞\nYour ad and data have been deleted from us!\n"
+deactivate_profile = 'Deactivate Moura 😴'
+deactivate_sure = 'Yes, I am sure ☠️'
+deactivate_no = 'No, it is a mistake!'
+deactivate_profile_caption = "Are you sure you want to leave us?"
+deactivate_profile_placeholder = "Maybe no?)"
+deactivate_sure_caption = ("Sorry to seeing you go😞\nYour ad and data have been deleted from us!\n"
                               "But you can always get back by typing /start or clicking on a button👇!")
 
 reactivate_profile = '🔮Return to Moura!🔮'
@@ -69,7 +79,7 @@ program_photo = 'https://cutt.ly/owYoxOJt'
 program_caption = '<b>STEP 3/8📝</b>\nWhich program do you study at?👀'
 program_placeholder = 'Choose a program'
 
-course_options = ['1 👶', '2 🧒', '3 🧔‍', '4 👴']
+course_options = ['1 👶', '2 🧒', '3 🧔‍', '4 👴', '5 😎']
 course_photo = 'https://cutt.ly/bwYoxLwG'
 course_placeholder = 'Choose course #'
 

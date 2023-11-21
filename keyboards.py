@@ -5,7 +5,7 @@ import consts
 kb_gender = [
         [types.KeyboardButton(text=consts.gender_options[0])],
         [types.KeyboardButton(text=consts.gender_options[1])],
-        [types.KeyboardButton(text=consts.start_over)]
+        [types.KeyboardButton(text=consts.start_over)],
     ]
 keyboard_gender = types.ReplyKeyboardMarkup(keyboard=kb_gender,
                                             resize_keyboard=True,
@@ -17,7 +17,7 @@ kb_campus = [
         [types.KeyboardButton(text=consts.campus_options[1])],
         [types.KeyboardButton(text=consts.campus_options[2])],
         [types.KeyboardButton(text=consts.campus_options[3])],
-        [types.KeyboardButton(text=consts.start_over)]
+        [types.KeyboardButton(text=consts.start_over)],
     ]
 keyboard_campus = types.ReplyKeyboardMarkup(keyboard=kb_campus,
                                             resize_keyboard=True,
@@ -33,7 +33,7 @@ kb_kanta = [
             [types.KeyboardButton(text=consts.program_options[5])],
             [types.KeyboardButton(text=consts.program_options[6])],
             [types.KeyboardButton(text=consts.program_options[7])],
-            [types.KeyboardButton(text=consts.start_over)]
+            [types.KeyboardButton(text=consts.start_over)],
         ]
 
 kb_griba = [
@@ -42,13 +42,13 @@ kb_griba = [
             [types.KeyboardButton(text=consts.program_options[10])],
             [types.KeyboardButton(text=consts.program_options[11])],
             [types.KeyboardButton(text=consts.program_options[12])],
-            [types.KeyboardButton(text=consts.start_over)]
+            [types.KeyboardButton(text=consts.start_over)],
         ]
 
 kb_proma = [
             [types.KeyboardButton(text=consts.program_options[13])],
             [types.KeyboardButton(text=consts.program_options[14])],
-            [types.KeyboardButton(text=consts.start_over)]
+            [types.KeyboardButton(text=consts.start_over)],
         ]
 
 
@@ -66,13 +66,26 @@ course_kb = [
         [types.KeyboardButton(text=consts.course_options[1])],
         [types.KeyboardButton(text=consts.course_options[2])],
         [types.KeyboardButton(text=consts.course_options[3])],
-        [types.KeyboardButton(text=consts.start_over)]
+        [types.KeyboardButton(text=consts.start_over)],
     ]
 
-course_keyboard = types.ReplyKeyboardMarkup(keyboard=course_kb,
-                                            resize_keyboard=True,
-                                            input_field_placeholder=consts.course_placeholder
-                                            )
+five_course_kb = [
+        [types.KeyboardButton(text=consts.course_options[0])],
+        [types.KeyboardButton(text=consts.course_options[1])],
+        [types.KeyboardButton(text=consts.course_options[2])],
+        [types.KeyboardButton(text=consts.course_options[3])],
+        [types.KeyboardButton(text=consts.course_options[4])],
+        [types.KeyboardButton(text=consts.start_over)],
+    ]
+
+def course_keyboard(program):
+    return types.ReplyKeyboardMarkup(keyboard=(five_course_kb
+                                               if program in [consts.program_options[7],
+                                                              consts.program_options[8],
+                                                              consts.program_options[12]]
+                                               else course_kb),
+                                     resize_keyboard=True,
+                                     input_field_placeholder=consts.course_placeholder)
 
 
 def goals_keyboard():
@@ -88,7 +101,7 @@ gendergoals_kb = [
         [types.KeyboardButton(text=consts.gender_goals_options[0])],
         [types.KeyboardButton(text=consts.gender_goals_options[1])],
         [types.KeyboardButton(text=consts.gender_goals_options[2])],
-        [types.KeyboardButton(text=consts.start_over)]
+        [types.KeyboardButton(text=consts.start_over)],
     ]
 
 gendergoals_keyboard = types.ReplyKeyboardMarkup(keyboard=gendergoals_kb,
@@ -98,7 +111,7 @@ gendergoals_keyboard = types.ReplyKeyboardMarkup(keyboard=gendergoals_kb,
 
 photo_kb = [
         [types.KeyboardButton(text=consts.no_photo)],
-        [types.KeyboardButton(text=consts.start_over)]
+        [types.KeyboardButton(text=consts.start_over)],
     ]
 
 photo_keyboard = types.ReplyKeyboardMarkup(keyboard=photo_kb,
@@ -129,6 +142,16 @@ awaiting_keyboard = types.ReplyKeyboardMarkup(keyboard=awaiting_kb,
                                               input_field_placeholder=consts.publish_placeholder
                                               )
 
+leaving_sure_kb = [
+        [types.KeyboardButton(text=consts.deactivate_sure)],
+        [types.KeyboardButton(text=consts.deactivate_no)],
+    ]
+
+leaving_sure_keyboard = types.ReplyKeyboardMarkup(keyboard=leaving_sure_kb,
+                                              resize_keyboard=True,
+                                              input_field_placeholder=consts.deactivate_profile_placeholder
+                                              )
+
 return_kb = [
         [types.KeyboardButton(text=consts.reactivate_profile)],
     ]
@@ -151,7 +174,7 @@ tinder_keyboard = types.ReplyKeyboardMarkup(keyboard=tinder_kb,
                                             )
 
 see_likes_kb = [
-    [types.KeyboardButton(text=consts.got_like)]
+    [types.KeyboardButton(text=consts.got_like)],
     ]
 
 see_likes_keyboard = types.ReplyKeyboardMarkup(keyboard=see_likes_kb,
