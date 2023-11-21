@@ -10,13 +10,13 @@ async def start(message: types.Message, state: FSMContext) -> None:
     await state.clear()
     # check if the user cleared history and tried to launch the /start again:
     result = dboper.user_exists(c, message.from_user.id)
-    if result is not None or message.text == 'Start over 🔄':
-        await message.answer((consts.restart_caption
-                              if message.text == 'Start over 🔄'
-                              else consts.start_caption))
+    if result is not None:
+        await message.answer(consts.start_caption)
         dboper.erase_user(conn, c, message.from_user.id)
         await start(message, state)
     else:
+        if message.text == 'Start over 🔄':
+            await message.answer(consts.restart_caption)
         # ask for access code
         await message.answer_photo(consts.intro_photo,
                                    consts.intro_caption,
