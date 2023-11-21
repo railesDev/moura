@@ -12,7 +12,6 @@ from main import c, conn
 import asyncio
 from aiogram.enums import ParseMode
 
-
 storage = MemoryStorage()
 moura = Bot(token=config.bot_token.get_secret_value(), parse_mode='HTML')
 dp = Dispatcher(storage=storage)

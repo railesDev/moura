@@ -15,7 +15,8 @@ def create_reactions(conn, c):
 
 def user_exists(c, id_):
     c.execute('''SELECT * FROM users WHERE id = ?''', (id_,))
-    return c.fetchone()
+    res = c.fetchone()
+    return (res if res else None)
 
 
 def erase_user(conn, c, id_):
